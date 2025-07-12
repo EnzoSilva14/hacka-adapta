@@ -1,13 +1,8 @@
-from crew import create_crew
-from streaming_handler import StreamingHandler
-from langchain.chat_models import ChatOpenAI
+from fastapi import FastAPI
+from api.routes import router
+from dotenv import load_dotenv
+load_dotenv()
 
-if __name__ == "__main__":
-    crew = create_crew()
-    
-    resultado = crew.kickoff(inputs={
-        "tema": "Inteligência Artificial na Educação"
-    })
+app = FastAPI(title="API Educacional IA")
 
-    print("\n🧠 Resultado final da Crew:\n")
-    print(resultado)
+app.include_router(router, prefix="/api")
