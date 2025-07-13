@@ -11,8 +11,8 @@ owner = "hillarykb"
 repo = "lazy-invest-web"
 file_path = "src/features/analysis/pages/stock-detail.page.tsx"  # Path inside the repo
 
-@tool("Get Git File Contents")
-def get_git_file_contents():
+@tool("Get File Content from repository")
+def get_code_from_repository():
     """
     Recupera o conteúdo de um arquivo específico de um repositório Git remoto.
     

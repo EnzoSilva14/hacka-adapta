@@ -1,9 +1,10 @@
 from crewai import Agent, Task, Crew, Process
 from crewai.project import CrewBase, crew, task, agent
-from git import get_git_file_contents
+from tools.code_read import get_code_from_repository
+from tools.code_open_pr import create_pr_with_files
+
 @CrewBase
 class UXInsightCrew():
-
     @agent
     def ux_analyst(self) -> Agent:
         return Agent(
@@ -17,14 +18,13 @@ class UXInsightCrew():
 
     @agent
     def code_refactor(self) -> Agent:
-
         return Agent(
             role="Desenvolvedor Front-end especialista em UX",
             goal="Aplicar melhorias de UI/UX no código fonte baseado nas recomendações fornecidas",
             backstory="Você é um desenvolvedor experiente em React e front-end moderno, com foco em criar experiências fluidas e acessíveis.",
             verbose=True,
             memory=True,
-            tools=[get_git_file_contents],
+            tools=[get_code_from_repository, create_pr_with_files],
             llm="gpt-4o"
         )
 
@@ -45,11 +45,11 @@ class UXInsightCrew():
         return Task(
             description=(
                 "Você receberá uma análise de UX com sugestões de melhorias,  "
-                "junto com um código fonte base da aplicação em React.\n\n"
+                "junto com um código fonte base da aplicação em React."
                 "Baseado nas sugestões geradas pela análise de UX, implemente mudanças diretamente no código, como ajustes de layout, foco em mobile, organização visual ou clareza de navegação.\n\n"
                 f"Mantenha o estilo do código limpo e com boas práticas, e inclua comentários no código explicando as mudanças feitas.\n\n"
             ),
-            expected_output="Arquivo(s) atualizados com as mudanças no código aplicando as recomendações de UI/UX.",
+            expected_output="Um Pull Request com as melhorias aplicadas nos arquivos e uma descrição detalhada do que foi mudada e porque foi mudado.",
             agent=self.code_refactor()
         )
 
