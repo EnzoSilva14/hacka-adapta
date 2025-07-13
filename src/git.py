@@ -1,17 +1,32 @@
 import requests
 import base64
+import os
+from dotenv import load_dotenv
+from crewai.tools import tool
+load_dotenv()
 
-token = "ghp_your_personal_access_token_here"  # Replace with your actual PAT
-owner = "your-github-username"
-repo = "your-private-repo"
-branch = "main"  # Or any specific branch or commit SHA
-file_path = "path/to/your/file.txt"  # Path inside the repo
+git_token = os.getenv("GITHUB_TOKEN")
 
+owner = "hillarykb"
+repo = "lazy-invest-web"
+file_path = "src/features/analysis/pages/stock-detail.page.tsx"  # Path inside the repo
+
+@tool("Get Git File Contents")
 def get_git_file_contents():
-    url = f"https://api.github.com/repos/{owner}/{repo}/contents/{file_path}?ref={branch}"
+    """
+    Recupera o conteúdo de um arquivo específico de um repositório Git remoto.
+    
+    Argumentos:
+    - repo_url: URL do repositório
+    - file_path: Caminho do arquivo no repositório
+
+    Retorna:
+    Conteúdo do arquivo como string.
+    """
+    url = f"https://api.github.com/repos/{owner}/{repo}/contents/{file_path}"
 
     headers = {
-        "Authorization": f"token {token}",
+        "Authorization": f"Bearer {git_token}",
         "Accept": "application/vnd.github.v3.raw"
     }
 
@@ -19,6 +34,7 @@ def get_git_file_contents():
     if response.status_code == 200:
         content = response.text
         print("File Content:\n", content)
+        return content
     else:
         print(f"Failed to fetch file. Status code: {response.status_code}")
         print("Response:", response.json())

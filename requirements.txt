@@ -1,7 +1,9 @@
 crewai>=0.28.0,<1.0.0
-crewai-tools
+crewai_tools
 fastapi
 uvicorn
 openai
 python-dotenv
 pydantic
+langchain-openai
+langsmith
