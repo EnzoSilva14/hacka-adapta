@@ -20,8 +20,15 @@ class UXInsightCrew():
     def code_refactor(self) -> Agent:
         return Agent(
             role="Desenvolvedor Front-end especialista em UX",
-            goal="Aplicar melhorias de UI/UX no código fonte baseado nas recomendações fornecidas",
-            backstory="Você é um desenvolvedor experiente em React e front-end moderno, com foco em criar experiências fluidas e acessíveis.",
+            goal=(
+                "Aplicar melhorias de UI/UX no código fonte com base nas recomendações fornecidas "
+                "e criar um pull request com as alterações implementadas para revisão da equipe."
+            ),
+            backstory=(
+                "Você é um desenvolvedor experiente em React e front-end moderno, com um olhar atento para usabilidade, "
+                "acessibilidade e boas práticas de UI. Trabalha com versionamento via GitHub e colabora ativamente com "
+                "o time de produto por meio de pull requests claros e bem documentados."
+            ),
             verbose=True,
             memory=True,
             tools=[get_code_from_repository, create_pr_with_files],
@@ -47,7 +54,8 @@ class UXInsightCrew():
                 "Você receberá uma análise de UX com sugestões de melhorias,  "
                 "junto com um código fonte base da aplicação em React."
                 "Baseado nas sugestões geradas pela análise de UX, implemente mudanças diretamente no código, como ajustes de layout, foco em mobile, organização visual ou clareza de navegação.\n\n"
-                f"Mantenha o estilo do código limpo e com boas práticas, e inclua comentários no código explicando as mudanças feitas.\n\n"
+                "Mantenha o estilo do código limpo e com boas práticas, e inclua comentários no código explicando as mudanças feitas.\n\n"
+                "A suas alterações devem ser feitas no arquivo especificado: "
             ),
             expected_output="Um Pull Request com as melhorias aplicadas nos arquivos e uma descrição detalhada do que foi mudada e porque foi mudado.",
             agent=self.code_refactor()

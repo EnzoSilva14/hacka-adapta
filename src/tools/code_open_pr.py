@@ -1,14 +1,19 @@
-from crewai_tools import tool
+from crewai.tools import tool
 import os
 import base64
 import requests
+from dotenv import load_dotenv
+
+load_dotenv()
+
+repo_full_name = "hillarykb/lazy-invest-web"
+base_branch = "main"
+file_path = "src/features/analysis/pages/stock-detail.page.tsx"  # Path inside the repo
 
 @tool("Create a new branch, commit files, and open a GitHub Pull Request")
 def create_pr_with_files(
-    repo_full_name: str,
-    base_branch: str,
     new_branch: str,
-    files: list,
+    file,
     pr_title: str,
     pr_body: str
 ) -> str:
@@ -16,10 +21,8 @@ def create_pr_with_files(
     Automates GitHub workflow: creates a branch, commits files, and opens a PR.
 
     Arguments:
-    - repo_full_name: e.g. "username/repo"
-    - base_branch: e.g. "main"
     - new_branch: e.g. "feature/my-feature"
-    - files: list of dicts with 'path', 'content', 'message'
+    - file:  modified file with 'path', 'content', 'message'
     - pr_title: title of the pull request
     - pr_body: body of the pull request
     """
@@ -52,19 +55,19 @@ def create_pr_with_files(
         return f"❌ Failed to create new branch: {create_resp.text}"
 
     # 3. Add or update files on new branch
-    for f in files:
-        file_url = f"{base_url}/contents/{f['path']}"
-        content_encoded = base64.b64encode(f['content'].encode()).decode()
+    
+    print(f"Processing file: {file}")
+    content_encoded = base64.b64encode(file['content'].encode()).decode()
 
-        file_payload = {
-            "message": f.get("message", f"Add {f['path']}"),
-            "content": content_encoded,
-            "branch": new_branch
-        }
-
-        file_resp = requests.put(file_url, json=file_payload, headers=headers)
-        if file_resp.status_code >= 300:
-            return f"❌ Failed to commit file {f['path']}: {file_resp.text}"
+    file_payload = {
+        "message": file.get("message", f"Add {file['path']}"),
+        "content": content_encoded,
+        "branch": new_branch
+    }
+    file_url = f"{base_url}/contents/{file['path']}"
+    file_resp = requests.put(file_url, json=file_payload, headers=headers)
+    if file_resp.status_code >= 300:
+        return f"❌ Failed to commit file {f['path']}: {file_resp.text}"
 
     # 4. Create Pull Request
     pr_payload = {

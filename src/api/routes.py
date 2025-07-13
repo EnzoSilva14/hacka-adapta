@@ -1,7 +1,6 @@
 from fastapi import APIRouter
 from pydantic import BaseModel
 from crew import UXInsightCrew
-from git import get_git_file_contents
 # LangSmith tracing
 from langchain.callbacks import tracing_v2_enabled
 

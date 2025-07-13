@@ -16,10 +16,6 @@ def get_code_from_repository():
     """
     Recupera o conteúdo de um arquivo específico de um repositório Git remoto.
     
-    Argumentos:
-    - repo_url: URL do repositório
-    - file_path: Caminho do arquivo no repositório
-
     Retorna:
     Conteúdo do arquivo como string.
     """
