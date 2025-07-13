@@ -1,136 +1,61 @@
 from crewai import Agent, Task, Crew, Process
-from dotenv import load_dotenv
-load_dotenv()
+from crewai.project import CrewBase, crew, task, agent
 
-def create_crew(llm=None):
-    # === AGENTES ===
-    tutor = Agent(
-        role='Tutor de Aprendizagem Personalizada',
-        goal='Facilitar o aprendizado contínuo e eficaz, respondendo perguntas de forma clara...',
-        backstory='Você é um tutor experiente com habilidade em explicar conceitos complexos...',
-        verbose=True,
-        llm=llm
-    )
+@CrewBase
+class UXInsightCrew():
 
-    pedagogo = Agent(
-        role='Especialista em Metodologias Educacionais',
-        goal='Criar trilhas personalizadas para estilos de aprendizagem diversos',
-        backstory='Você é um pedagogo especialista em ensino adaptativo.',
-        verbose=True,
-        llm=llm
-    )
-
-    animador = Agent(
-        role='Designer de Conteúdo Visual',
-        goal='Criar mapas mentais e visualizações com SVG/animações',
-        backstory='Você domina anime.js e torna o conteúdo visualmente compreensível.',
-        verbose=True,
-        llm=llm
-    )
-
-    exercicios = Agent(
-        role='Criador de Exercícios e Simulados',
-        goal='Gerar questões com dificuldade adaptativa',
-        backstory='Você é focado em fixação de conhecimento com prática.',
-        verbose=True,
-        llm=llm
-    )
-
-    motivacional = Agent(
-        role='Agente Motivacional',
-        goal='Gerar missões e recompensas para engajar o aluno',
-        backstory='Você cuida da energia e ânimo do estudante.',
-        verbose=True,
-        llm=llm
-    )
-
-    memoria = Agent(
-        role='Guardião da Memória',
-        goal='Rastrear e agendar revisões futuras',
-        backstory='Você sabe tudo que o aluno já viu e revisou.',
-        verbose=True,
-        llm=llm
-    )
-
-    verificador = Agent(
-        role='Verificador de Conteúdo',
-        goal='Checar fatos e datas com precisão usando fontes externas',
-        backstory='Você combate informações falsas ou erradas com verificação factual.',
-        verbose=True,
-        llm=llm
-    )
-
-    colaborador = Agent(
-        role='Facilitador de Estudo Coletivo',
-        goal='Conectar alunos para estudo em grupo ou desafios colaborativos',
-        backstory='Você promove o aprendizado social e competitivo.',
-        verbose=True,
-        llm=llm
-    )
-
-    conteudista = Agent(
-        role='Produtor de Conteúdo Didático',
-        goal='Gerar fichamentos e apresentações para alunos e professores',
-        backstory='Você transforma conteúdo em material bem formatado.',
-        verbose=True,
-        llm=llm
-    )
-
-    # === TAREFAS ===
-    tasks = [
-        Task(
-            description="Gerar introdução clara para o tema solicitado.",
-            expected_output="Texto introdutório claro e bem contextualizado.",
-            agent=tutor
-        ),
-        Task(
-            description="Criar trilha de aprendizado adaptada ao estilo do aluno.",
-            expected_output="Trilha com 3 etapas (vídeo, flashcard, quiz).",
-            agent=pedagogo
-        ),
-        Task(
-            description="Gerar mapa mental animado (estrutura SVG + transições).",
-            expected_output="SVG animado usando anime.js ou estrutura semelhante.",
-            agent=animador
-        ),
-        Task(
-            description="Criar 5-10 exercícios com múltiplas escolhas e gabarito.",
-            expected_output="Lista de questões com níveis variados de dificuldade.",
-            agent=exercicios
-        ),
-        Task(
-            description="Validar informações com fontes externas e corrigir erros.",
-            expected_output="Lista de afirmações com validação factual.",
-            agent=verificador
-        ),
-        Task(
-            description="Criar missão de estudo de 20 minutos com recompensa.",
-            expected_output="Missão com instruções, objetivo e mensagem motivacional.",
-            agent=motivacional
-        ),
-        Task(
-            description="Registrar o conteúdo estudado e agendar revisão em 3 dias.",
-            expected_output="Registro salvo e revisão programada.",
-            agent=memoria
-        ),
-        Task(
-            description="Sugerir estudo colaborativo com outro aluno compatível.",
-            expected_output="Sugestão de dupla + tema e desafio proposto.",
-            agent=colaborador
-        ),
-        Task(
-            description="Gerar resumo e slide em markdown para apresentação.",
-            expected_output="Resumo + slide estruturado para professor ou aluno.",
-            agent=conteudista
+    @agent
+    def ux_analyst(self) -> Agent:
+        return Agent(
+            role="Especialista em UX para Produtos Digitais",
+            goal="Analisar dados de comportamento de usuários e sugerir melhorias de usabilidade",
+            backstory="Você é um especialista em UX com experiência em interpretar dados quantitativos para melhorar a experiência do usuário.",
+            verbose=True,
+            memory=True,
+            llm="gpt-4o"
         )
-    ]
 
-    return Crew(
-        agents=[
-            tutor, pedagogo, animador, exercicios,
-            motivacional, memoria, verificador,
-            colaborador, conteudista
-        ],
-        tasks=tasks,
-        process=Process.sequential
-    )
+    @agent
+    def code_refactor(self) -> Agent:
+        return Agent(
+            role="Desenvolvedor Front-end especialista em UX",
+            goal="Aplicar melhorias de UI/UX no código fonte baseado nas recomendações fornecidas",
+            backstory="Você é um desenvolvedor experiente em React e front-end moderno, com foco em criar experiências fluidas e acessíveis.",
+            verbose=True,
+            memory=True,
+            llm="gpt-4o"
+        )
+
+    @task
+    def analyze_mocked_heatmap(self) -> Task:
+        return Task(
+            description=(
+                "Você receberá um dicionário JSON chamado 'heatmap' com dados comportamentais simulados de usuários (mock).\n"
+                "Analise esses dados e gere de 3 a 5 sugestões práticas para melhorar a experiência do usuário, com foco em navegação, layout e engajamento.\n"
+                "Use os campos como 'sessões', 'cliques inativos', 'intenção', 'dispositivo' e 'páginas de saída' para embasar suas recomendações."
+            ),
+            expected_output="Lista de sugestões de melhoria de UX com justificativa baseada nos dados fornecidos no JSON.",
+            agent=self.ux_analyst()
+        )
+
+    @task
+    def apply_ui_fixes_to_code(self) -> Task:
+        return Task(
+            description=(
+                "Você receberá um dicionário JSON chamado 'heatmap' com dados comportamentais, "
+                "junto com um código fonte base da aplicação em React.\n\n"
+                "Baseado nas sugestões geradas pela análise de UX, implemente mudanças diretamente no código, como ajustes de layout, foco em mobile, organização visual ou clareza de navegação.\n\n"
+                "Mantenha o estilo do código limpo e com boas práticas, e inclua comentários no código explicando as mudanças feitas."
+            ),
+            expected_output="Arquivo(s) atualizados com as mudanças no código aplicando as recomendações de UI/UX.",
+            agent=self.code_refactor()
+        )
+
+    @crew
+    def crew(self) -> Crew:
+        return Crew(
+            agents=[self.ux_analyst(), self.code_refactor()],
+            tasks=[self.analyze_mocked_heatmap(), self.apply_ui_fixes_to_code()],
+            process=Process.sequential,
+            verbose=True
+        )
