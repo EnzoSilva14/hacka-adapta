@@ -2,6 +2,18 @@ from crewai import Agent, Task, Crew, Process
 from crewai.project import CrewBase, crew, task, agent
 from tools.code_read import get_code_from_repository
 from tools.code_open_pr import create_pr_with_files
+from langchain_openai import ChatOpenAI
+import os
+from langchain_community.chat_models import ChatLiteLLM
+from dotenv import load_dotenv
+load_dotenv()
+
+nvidia_llm = ChatLiteLLM(
+    model="meta/llama3-70b-instruct",
+    api_key=os.getenv("NVIDIA_API_KEY"),
+    api_base="https://integrate.api.nvidia.com/v1",
+    litellm_provider="nvidia"  # ESSENCIAL!
+)
 
 @CrewBase
 class UXInsightCrew():
@@ -13,7 +25,7 @@ class UXInsightCrew():
             backstory="Você é um especialista em UX com experiência em interpretar dados quantitativos para melhorar a experiência do usuário.",
             verbose=True,
             memory=True,
-            llm="gpt-4o"
+            llm=nvidia_llm
         )
 
     @agent
@@ -32,7 +44,7 @@ class UXInsightCrew():
             verbose=True,
             memory=True,
             tools=[get_code_from_repository, create_pr_with_files],
-            llm="gpt-4o"
+            llm=nvidia_llm
         )
 
     @task
@@ -62,8 +74,10 @@ class UXInsightCrew():
                 "- Criar um Pull Request com o título `UX Improvements on Stock Detail Page`\n"
                 "- O corpo do PR deve conter um resumo das mudanças aplicadas e as justificativas baseadas nos dados analisados.\n\n"
                 "A função `create_pr_with_files` requer os seguintes parâmetros:\n"
-                "`new_branch`, `file_path`, `file_content`, `file_message`, `pr_title`, `pr_body`\n"
-                "Certifique-se de preencher todos corretamente."
+                "`new_branch`, `file_path`, `file_content`, `file_message`, `pr_title`, `pr_body`, `repo_full_name`, `base_branch`\n"
+                "Certifique-se de preencher todos corretamente, incluindo:\n"
+                "- `repo_full_name`: 'hillarykb/lazy-invest-web'\n"
+                "- `base_branch`: 'main'\n"
             ),
             expected_output=(
                 "Pull Request criado no GitHub com as melhorias aplicadas no arquivo "
@@ -76,7 +90,7 @@ class UXInsightCrew():
     def crew(self) -> Crew:
         return Crew(
             agents=[self.ux_analyst(), self.code_refactor()],
-            ts=[self.analyze_metrics(), self.develop_changes_and_open_pr()],
+            tasks=[self.analyze_metrics(), self.develop_changes_and_open_pr()],
             process=Process.sequential,
             verbose=True
         )
