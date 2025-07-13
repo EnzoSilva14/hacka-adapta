@@ -13,7 +13,7 @@ class UXInput(BaseModel):
 def analisar_ux(payload: UXInput):
     crew_instance = UXInsightCrew()
     crew = crew_instance.crew()
-    with tracing_v2_enabled(project_name="crewai-ux-monitoramento"):
+    with tracing_v2_enabled(project_name="phoenix-app"):
         result = crew.kickoff(inputs={
             "heatmap": payload.heatmap
         })

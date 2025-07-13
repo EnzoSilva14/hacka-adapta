@@ -36,7 +36,7 @@ class UXInsightCrew():
         )
 
     @task
-    def analyze_mocked_heatmap(self) -> Task:
+    def analyze_metrics(self) -> Task:
         return Task(
             description=(
                 "Você receberá um dicionário JSON chamado 'heatmap' com dados comportamentais simulados de usuários (mock).\n"
@@ -48,16 +48,27 @@ class UXInsightCrew():
         )
 
     @task
-    def apply_ui_fixes_to_code(self) -> Task:
+    def develop_changes_and_open_pr(self) -> Task:
         return Task(
             description=(
-                "Você receberá uma análise de UX com sugestões de melhorias,  "
-                "junto com um código fonte base da aplicação em React."
-                "Baseado nas sugestões geradas pela análise de UX, implemente mudanças diretamente no código, como ajustes de layout, foco em mobile, organização visual ou clareza de navegação.\n\n"
-                "Mantenha o estilo do código limpo e com boas práticas, e inclua comentários no código explicando as mudanças feitas.\n\n"
-                "A suas alterações devem ser feitas no arquivo especificado: "
+                "Você receberá uma análise de UX com sugestões de melhorias, junto com um código fonte base da aplicação em React.\n\n"
+                "Baseado nas sugestões geradas pela análise de UX, implemente mudanças no arquivo:\n"
+                "`src/features/analysis/pages/stock-detail.page.tsx`.\n\n"
+                "Mantenha boas práticas de codificação e adicione comentários explicando as mudanças feitas.\n\n"
+                "**Depois disso, use a ferramenta `create_pr_with_files`** para:\n"
+                "- Criar um novo branch chamado `ux-improvements`\n"
+                "- Substituir o conteúdo do arquivo com as suas mudanças\n"
+                "- Usar a seguinte mensagem de commit: `Melhorias de UX com base na análise comportamental`\n"
+                "- Criar um Pull Request com o título `UX Improvements on Stock Detail Page`\n"
+                "- O corpo do PR deve conter um resumo das mudanças aplicadas e as justificativas baseadas nos dados analisados.\n\n"
+                "A função `create_pr_with_files` requer os seguintes parâmetros:\n"
+                "`new_branch`, `file_path`, `file_content`, `file_message`, `pr_title`, `pr_body`\n"
+                "Certifique-se de preencher todos corretamente."
             ),
-            expected_output="Um Pull Request com as melhorias aplicadas nos arquivos e uma descrição detalhada do que foi mudada e porque foi mudado.",
+            expected_output=(
+                "Pull Request criado no GitHub com as melhorias aplicadas no arquivo "
+                "`stock-detail.page.tsx` e descrição explicando as mudanças feitas."
+            ),
             agent=self.code_refactor()
         )
 
@@ -65,7 +76,7 @@ class UXInsightCrew():
     def crew(self) -> Crew:
         return Crew(
             agents=[self.ux_analyst(), self.code_refactor()],
-            tasks=[self.analyze_mocked_heatmap(), self.apply_ui_fixes_to_code()],
+            ts=[self.analyze_metrics(), self.develop_changes_and_open_pr()],
             process=Process.sequential,
             verbose=True
         )
